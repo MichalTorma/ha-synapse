@@ -58,18 +58,16 @@ RUN \
         requests \
     && /opt/venv/bin/python -m synapse.app.homeserver --help > /dev/null
 
+# Set initial permissions
+RUN \
+    chown -R synapse:synapse /data \
+    && chmod -R 750 /data
+
 # Update PATH to use virtual environment
 ENV PATH="/opt/venv/bin:$PATH"
 
 # Copy rootfs
 COPY rootfs /
-
-# Set permissions
-RUN \
-    chown -R synapse:synapse /data \
-    && chmod -R 750 /data \
-    && chmod +x /etc/cont-init.d/* \
-    && chmod +x /etc/services.d/synapse/*
 
 # Build arguments for labels
 ARG BUILD_DATE
