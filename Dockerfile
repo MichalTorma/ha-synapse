@@ -1,51 +1,33 @@
+# https://developers.home-assistant.io/docs/add-ons/configuration#add-on-dockerfile
 ARG BUILD_FROM
 FROM $BUILD_FROM
 
-# Set shell
-SHELL ["/bin/bash", "-o", "pipefail", "-c"]
-
-# Build arguments
-ARG BUILD_ARCH
-ARG SYNAPSE_VERSION=1.137.0
-
-# Install runtime dependencies
-RUN \
-    apk add --no-cache \
-        ca-certificates \
-        tzdata \
-        postgresql-client \
-        curl \
-        python3 \
-        py3-pip \
-        build-base \
-        python3-dev \
-        libffi-dev \
-        openssl-dev \
-        libpq-dev
-
-# Create synapse user and directories
-RUN \
-    addgroup -g 991 synapse \
-    && adduser -D -s /bin/bash -u 991 -G synapse synapse \
-    && mkdir -p /synapse/data \
-    && mkdir -p /synapse/config
+# Install required packages
+RUN apk add --no-cache \
+    python3 \
+    py3-pip \
+    postgresql-client \
+    curl \
+    build-base \
+    python3-dev \
+    libffi-dev \
+    openssl-dev \
+    libpq-dev
 
 # Install Synapse in virtual environment
-RUN \
-    python3 -m venv /opt/venv \
-    && /opt/venv/bin/pip install --upgrade pip \
-    && /opt/venv/bin/pip install "matrix-synapse[postgres]==${SYNAPSE_VERSION}" psycopg2-binary
+RUN python3 -m venv /opt/venv && \
+    /opt/venv/bin/pip install --upgrade pip && \
+    /opt/venv/bin/pip install matrix-synapse[postgres] psycopg2-binary
 
-# Set permissions
-RUN \
-    chown -R synapse:synapse /synapse \
-    && chmod -R g+w /synapse
-
-# Set PATH
+# Set PATH to use virtual environment
 ENV PATH="/opt/venv/bin:$PATH"
 
-# Copy rootfs
+# Copy root filesystem
 COPY rootfs /
+
+# Ensure service scripts are executable
+RUN chmod +x /etc/cont-init.d/* && \
+    chmod +x /etc/services.d/synapse/*
 
 # Build arguments for labels
 ARG BUILD_DATE
