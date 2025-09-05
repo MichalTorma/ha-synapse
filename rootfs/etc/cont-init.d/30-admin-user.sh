@@ -21,13 +21,10 @@ while ! curl -f http://localhost:8008/_matrix/client/versions >/dev/null 2>&1; d
     sleep 2
 done
 
-# Check if user already exists
-if curl -f "http://localhost:8008/_synapse/admin/v2/users/@${ADMIN_USERNAME}:${SERVER_NAME}" >/dev/null 2>&1; then
-    echo "Admin user @${ADMIN_USERNAME}:${SERVER_NAME} already exists"
-else
-    echo "Creating admin user @${ADMIN_USERNAME}:${SERVER_NAME}..."
-    
-    # Register user using registration_shared_secret
+# Create admin user (skip existence check as it requires auth)
+echo "Creating admin user @${ADMIN_USERNAME}:${SERVER_NAME}..."
+
+# Register user using registration_shared_secret
     /opt/venv/bin/python -c "
 import hashlib
 import hmac
@@ -40,16 +37,23 @@ import yaml
 with open('/config/synapse/homeserver.yaml', 'r') as f:
     config = yaml.safe_load(f)
 
-# Generate registration shared secret if not exists
-if 'registration_shared_secret' not in config:
-    import secrets
-    secret = secrets.token_urlsafe(32)
-    config['registration_shared_secret'] = secret
-    with open('/config/synapse/homeserver.yaml', 'w') as f:
-        yaml.dump(config, f)
-    print(f'Generated registration shared secret: {secret}')
-else:
-    secret = config['registration_shared_secret']
+# Get registration shared secret from config
+secret = config.get('registration_shared_secret')
+if not secret:
+    print('Error: registration_shared_secret not found in config')
+    sys.exit(1)
+
+# First, get a nonce
+try:
+    nonce_response = requests.get('http://localhost:8008/_synapse/admin/v1/register', timeout=10)
+    if nonce_response.status_code != 200:
+        print(f'Failed to get nonce: {nonce_response.status_code} - {nonce_response.text}')
+        sys.exit(1)
+    nonce = nonce_response.json()['nonce']
+    print(f'Got nonce: {nonce}')
+except Exception as e:
+    print(f'Error getting nonce: {e}')
+    sys.exit(1)
 
 # Create admin user
 username = '${ADMIN_USERNAME}'
@@ -62,6 +66,8 @@ mac = hmac.new(
     digestmod=hashlib.sha1,
 )
 
+mac.update(nonce.encode('utf8'))
+mac.update(b'\x00')
 mac.update(username.encode('utf8'))
 mac.update(b'\x00')
 mac.update(password.encode('utf8'))
@@ -74,6 +80,7 @@ if user_type:
 mac_str = mac.hexdigest()
 
 data = {
+    'nonce': nonce,
     'username': username,
     'password': password,
     'admin': admin,
