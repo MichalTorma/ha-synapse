@@ -1,6 +1,6 @@
 name: "Synapse Matrix Server"
 description: "Matrix homeserver written in Python/Twisted + Rust"
-version: "0.4.0"
+version: "0.4.1"
 slug: "synapse-server"
 apparmor: true
 arch:
@@ -39,6 +39,7 @@ options:
   registration_enabled: false
   registration_requires_token: true
   enable_registration_without_verification: false
+  registration_tokens: []
   report_stats: false
   admin_username: "admin"
   admin_password: ""
@@ -75,6 +76,7 @@ schema:
   form_secret: "str?"
   registration_enabled: "bool"
   registration_requires_token: "bool"
+  registration_tokens: ["str"]
   enable_registration_without_verification: "bool"
   report_stats: "bool"
   admin_username: "str"
