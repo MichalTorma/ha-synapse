@@ -8,16 +8,19 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 ARG BUILD_ARCH
 ARG SYNAPSE_VERSION=1.137.0
 
-# Install system dependencies and Rust for building Synapse
+# Install Python and system dependencies
 RUN \
     apk add --no-cache \
+        python3 \
+        python3-dev \
+        py3-pip \
         ca-certificates \
         tzdata \
         postgresql-client \
         jq \
         curl \
-        libpq-dev \
-        xmlsec-dev \
+        libpq \
+        xmlsec \
         git \
         build-base \
         libffi-dev \
@@ -28,7 +31,11 @@ RUN \
         rust \
         cargo \
         pkgconfig \
-        libc-dev
+        libc-dev \
+        libxslt-dev \
+        yaml-dev \
+        musl-dev \
+        linux-headers
 
 # Create synapse user and directories
 RUN \
@@ -40,12 +47,15 @@ RUN \
     && mkdir -p /data/config \
     && mkdir -p /data/keys
 
-# Install Python dependencies and Synapse
+# Upgrade pip and install Python dependencies
 RUN \
-    pip3 install --no-cache-dir \
-        "matrix-synapse[postgres,resources.consent,saml2,oidc,systemd,url_preview,test]==${SYNAPSE_VERSION}" \
+    python3 -m pip install --upgrade pip setuptools wheel \
+    && pip3 install --no-cache-dir \
+        "matrix-synapse[postgres,resources.consent,saml2,oidc,url_preview]==${SYNAPSE_VERSION}" \
         psycopg2-binary \
-        && python3 -m synapse.app.homeserver --help > /dev/null
+        pyyaml \
+        requests \
+    && python3 -m synapse.app.homeserver --help > /dev/null
 
 # Copy rootfs
 COPY rootfs /
