@@ -4,14 +4,32 @@
 # Creates registration tokens if configured
 # ==============================================================================
 
-# Get configuration
-readarray -t tokens < <(bashio::config 'registration_tokens')
+# Get configuration - use a different approach for arrays
+tokens=()
+if bashio::config.exists 'registration_tokens'; then
+    # Get the array length
+    token_count=$(bashio::config 'registration_tokens | length')
+    # Read each token by index
+    for ((i=0; i<token_count; i++)); do
+        token=$(bashio::config "registration_tokens[$i]")
+        if [[ -n "$token" ]]; then
+            tokens+=("$token")
+        fi
+    done
+fi
 ADMIN_USERNAME=$(bashio::config 'admin_username')
 ADMIN_PASSWORD=$(bashio::config 'admin_password')
 SERVER_NAME=$(bashio::config 'server_name')
 
 # Debug logging
+bashio::log.info "Debug: Registration tokens config exists: $(bashio::config.exists 'registration_tokens' && echo "yes" || echo "no")"
+if bashio::config.exists 'registration_tokens'; then
+    bashio::log.info "Debug: Token count from config: $(bashio::config 'registration_tokens | length')"
+fi
 bashio::log.info "Debug: Found ${#tokens[@]} registration tokens"
+for token in "${tokens[@]}"; do
+    bashio::log.info "Debug: Token: ${token:0:8}..."
+done
 bashio::log.info "Debug: Admin username: ${ADMIN_USERNAME}"
 bashio::log.info "Debug: Admin password configured: $(bashio::var.has_value "${ADMIN_PASSWORD}" && echo "yes" || echo "no")"
 
