@@ -1,6 +1,6 @@
 name: "Synapse Matrix Server"
 description: "Matrix homeserver written in Python/Twisted + Rust"
-version: "0.3.8"
+version: "0.3.9"
 slug: "synapse-server"
 apparmor: true
 arch:

@@ -101,6 +101,9 @@ EOF
 
     chmod +x /tmp/create_admin_user.sh
     bashio::log.info "Admin user creation script prepared"
+    
+    # Run the admin user creation in background
+    nohup /tmp/create_admin_user.sh >/var/log/admin-user-creation.log 2>&1 &
 else
     bashio::log.info "No admin user configured - skipping admin user creation"
 fi
