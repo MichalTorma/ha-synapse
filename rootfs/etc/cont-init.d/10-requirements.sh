@@ -37,7 +37,7 @@ mkdir -p /config/synapse/keys
 mkdir -p /media/synapse
 chmod -R 750 /config/synapse
 chmod -R 750 /media/synapse
-chown -R synapse:synapse /config/synapse
-chown -R synapse:synapse /media/synapse
+chown -R root:root /config/synapse
+chown -R root:root /media/synapse
 
 bashio::log.info "Requirements check completed"
