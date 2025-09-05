@@ -47,15 +47,16 @@ EMAIL_SMTP_REQUIRE_TRANSPORT_SECURITY=$(bashio::config 'email_smtp_require_trans
 EMAIL_FROM=$(bashio::config 'email_from')
 EMAIL_SUBJECT_PREFIX=$(bashio::config 'email_subject_prefix')
 
-# Generate signing key if it doesn't exist
-if [[ ! -f "${SIGNING_KEY_FILE}" ]]; then
-    bashio::log.info "Generating Synapse signing key..."
-    /opt/venv/bin/python -m synapse.app.homeserver \
-        --server-name="${SERVER_NAME}" \
-        --config-path="${CONFIG_FILE}" \
-        --generate-keys \
-        --generate-missing-configs
-fi
+# Generate signing key if it doesn't exist (after config is created)
+generate_signing_key() {
+    if [[ ! -f "${SIGNING_KEY_FILE}" ]]; then
+        bashio::log.info "Generating Synapse signing key..."
+        /opt/venv/bin/python -m synapse.app.homeserver \
+            --server-name="${SERVER_NAME}" \
+            --config-path="${CONFIG_FILE}" \
+            --generate-keys
+    fi
+}
 
 # Create log configuration
 bashio::log.info "Creating log configuration..."
@@ -284,6 +285,9 @@ worker_app: synapse.app.homeserver
 # Additional settings
 suppress_key_server_warning: true
 EOF
+
+# Generate signing key now that config file exists
+generate_signing_key
 
 # Set permissions
 chown -R synapse:synapse /config/synapse
