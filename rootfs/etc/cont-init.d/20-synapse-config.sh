@@ -102,10 +102,10 @@ for server in "${key_servers[@]}"; do
     TRUSTED_KEY_SERVERS="${TRUSTED_KEY_SERVERS}\"${server}\": {}"
 done
 
-# Generate random secrets
-MACAROON_SECRET_KEY=$(openssl rand -hex 32)
-REGISTRATION_SHARED_SECRET=$(openssl rand -hex 32)
-FORM_SECRET=$(openssl rand -hex 32)
+# Generate random secrets using Python (openssl not available in HA base image)
+MACAROON_SECRET_KEY=$(python3 -c "import secrets; print(secrets.token_hex(32))")
+REGISTRATION_SHARED_SECRET=$(python3 -c "import secrets; print(secrets.token_hex(32))")
+FORM_SECRET=$(python3 -c "import secrets; print(secrets.token_hex(32))")
 
 # Database connection string
 DB_CONNECTION="postgresql://${DATABASE_USER}:${DATABASE_PASSWORD}@${DATABASE_HOST}:${DATABASE_PORT}/${DATABASE_NAME}?cp_min=5&cp_max=10"
