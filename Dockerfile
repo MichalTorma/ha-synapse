@@ -49,8 +49,8 @@ RUN \
 
 # Upgrade pip and install Python dependencies
 RUN \
-    python3 -m pip install --upgrade pip setuptools wheel \
-    && pip3 install --no-cache-dir \
+    python3 -m pip install --upgrade pip setuptools wheel --break-system-packages \
+    && pip3 install --no-cache-dir --break-system-packages \
         "matrix-synapse[postgres,resources.consent,saml2,oidc,url_preview]==${SYNAPSE_VERSION}" \
         psycopg2-binary \
         pyyaml \
