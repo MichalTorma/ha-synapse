@@ -1,6 +1,6 @@
 name: "Synapse Matrix Server"
 description: "Matrix homeserver written in Python/Twisted + Rust"
-version: "0.3.7"
+version: "0.3.8"
 slug: "synapse-server"
 apparmor: true
 arch:
@@ -33,6 +33,9 @@ options:
   database_name: "synapse"
   database_user: "synapse"
   database_password: ""
+  macaroon_secret_key: ""
+  registration_shared_secret: ""
+  form_secret: ""
   registration_enabled: false
   registration_requires_token: true
   enable_registration_without_verification: false
@@ -67,6 +70,9 @@ schema:
   database_name: "str"
   database_user: "str"
   database_password: "password"
+  macaroon_secret_key: "str?"
+  registration_shared_secret: "str?"
+  form_secret: "str?"
   registration_enabled: "bool"
   registration_requires_token: "bool"
   enable_registration_without_verification: "bool"

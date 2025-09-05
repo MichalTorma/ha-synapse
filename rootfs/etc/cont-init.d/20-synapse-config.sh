@@ -102,10 +102,24 @@ for server in "${key_servers[@]}"; do
     TRUSTED_KEY_SERVERS="${TRUSTED_KEY_SERVERS}\"${server}\": {}"
 done
 
-# Generate random secrets using Python (openssl not available in HA base image)
-MACAROON_SECRET_KEY=$(python3 -c "import secrets; print(secrets.token_hex(32))")
-REGISTRATION_SHARED_SECRET=$(python3 -c "import secrets; print(secrets.token_hex(32))")
-FORM_SECRET=$(python3 -c "import secrets; print(secrets.token_hex(32))")
+# Use configured secrets or generate random ones as fallback
+MACAROON_SECRET_KEY=$(bashio::config 'macaroon_secret_key')
+if ! bashio::var.has_value "${MACAROON_SECRET_KEY}"; then
+    MACAROON_SECRET_KEY=$(python3 -c "import secrets; print(secrets.token_hex(32))")
+    bashio::log.info "Generated macaroon_secret_key (consider setting in addon config)"
+fi
+
+REGISTRATION_SHARED_SECRET=$(bashio::config 'registration_shared_secret')
+if ! bashio::var.has_value "${REGISTRATION_SHARED_SECRET}"; then
+    REGISTRATION_SHARED_SECRET=$(python3 -c "import secrets; print(secrets.token_hex(32))")
+    bashio::log.info "Generated registration_shared_secret (consider setting in addon config)"
+fi
+
+FORM_SECRET=$(bashio::config 'form_secret')
+if ! bashio::var.has_value "${FORM_SECRET}"; then
+    FORM_SECRET=$(python3 -c "import secrets; print(secrets.token_hex(32))")
+    bashio::log.info "Generated form_secret (consider setting in addon config)"
+fi
 
 # Database connection string
 DB_CONNECTION="postgresql://${DATABASE_USER}:${DATABASE_PASSWORD}@${DATABASE_HOST}:${DATABASE_PORT}/${DATABASE_NAME}?cp_min=5&cp_max=10"
