@@ -28,7 +28,7 @@ else
     echo "Creating admin user @${ADMIN_USERNAME}:${SERVER_NAME}..."
     
     # Register user using registration_shared_secret
-    python3 -c "
+    /opt/venv/bin/python -c "
 import hashlib
 import hmac
 import json

@@ -47,15 +47,19 @@ RUN \
     && mkdir -p /data/config \
     && mkdir -p /data/keys
 
-# Upgrade pip and install Python dependencies
+# Create virtual environment and install Python dependencies
 RUN \
-    python3 -m pip install --upgrade pip setuptools wheel --break-system-packages \
-    && pip3 install --no-cache-dir --break-system-packages \
+    python3 -m venv /opt/venv \
+    && /opt/venv/bin/pip install --upgrade pip setuptools wheel \
+    && /opt/venv/bin/pip install --no-cache-dir \
         "matrix-synapse[postgres,resources.consent,saml2,oidc,url_preview]==${SYNAPSE_VERSION}" \
         psycopg2-binary \
         pyyaml \
         requests \
-    && python3 -m synapse.app.homeserver --help > /dev/null
+    && /opt/venv/bin/python -m synapse.app.homeserver --help > /dev/null
+
+# Update PATH to use virtual environment
+ENV PATH="/opt/venv/bin:$PATH"
 
 # Copy rootfs
 COPY rootfs /
