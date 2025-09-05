@@ -1,0 +1,76 @@
+#include <tunables/global>
+
+profile synapse flags=(attach_disconnected,mediate_deleted) {
+  #include <abstractions/base>
+  #include <abstractions/python>
+  #include <abstractions/ssl_certs>
+
+  # Capabilities
+  capability setgid,
+  capability setuid,
+  capability net_bind_service,
+
+  # S6-Overlay
+  /init ix,
+  /bin/** ix,
+  /usr/bin/** ix,
+  /run/{s6,s6-rc*,service}/** ix,
+  /package/** ix,
+  /command/** ix,
+  /etc/services.d/** rwix,
+  /etc/cont-init.d/** rwix,
+  /run/{,**} rwk,
+  /dev/tty rw,
+
+  # Bashio
+  /usr/lib/bashio/** ix,
+  /tmp/** rwk,
+
+  # Access to options.json and other addon-specific files
+  /data/options.json r,
+
+  # Python
+  /usr/bin/python3* ix,
+  /usr/lib/python3*/** r,
+  /usr/local/lib/python3*/** r,
+
+  # Synapse
+  /usr/local/bin/python3* ix,
+  /usr/local/lib/python3*/site-packages/synapse/** r,
+  /usr/local/lib/python3*/site-packages/** r,
+
+  # Configuration and data
+  /config/synapse/** rwk,
+  /media/synapse/** rwk,
+  /data/** rwk,
+  /ssl/** r,
+
+  # System
+  /etc/resolv.conf r,
+  /etc/passwd r,
+  /etc/group r,
+  /etc/hosts r,
+  /etc/hostname r,
+  /etc/localtime r,
+  /etc/timezone r,
+  /etc/ssl/certs/** r,
+  /usr/share/zoneinfo/** r,
+
+  # Network
+  network inet dgram,
+  network inet stream,
+  network inet6 dgram,
+  network inet6 stream,
+
+  # Proc filesystem
+  @{PROC}/sys/net/core/somaxconn r,
+  @{PROC}/loadavg r,
+  @{PROC}/meminfo r,
+  @{PROC}/version r,
+  @{PROC}/sys/kernel/osrelease r,
+
+  # Deny access to sensitive files
+  deny /etc/shadow r,
+  deny /etc/ssh/** r,
+  deny /root/.ssh/** r,
+}

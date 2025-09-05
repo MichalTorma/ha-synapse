@@ -1,0 +1,97 @@
+configuration:
+  server_name:
+    name: Server Name
+    description: The domain name of the homeserver (e.g., matrix.example.com)
+  database_host:
+    name: Database Host
+    description: PostgreSQL database hostname or IP address
+  database_port:
+    name: Database Port
+    description: PostgreSQL database port (default 5432)
+  database_name:
+    name: Database Name
+    description: PostgreSQL database name for Synapse
+  database_user:
+    name: Database User
+    description: PostgreSQL username for Synapse
+  database_password:
+    name: Database Password
+    description: PostgreSQL password for Synapse
+  registration_enabled:
+    name: Enable Registration
+    description: Allow new users to register accounts
+  registration_requires_token:
+    name: Registration Requires Token
+    description: Require registration tokens for new accounts
+  enable_registration_without_verification:
+    name: Allow Registration Without Verification
+    description: Allow registration without email verification (not recommended for public servers)
+  report_stats:
+    name: Report Statistics
+    description: Send anonymous usage statistics to Matrix.org
+  admin_username:
+    name: Admin Username
+    description: Username for the initial admin user (without @server_name)
+  admin_password:
+    name: Admin Password
+    description: Password for the initial admin user
+  admin_email:
+    name: Admin Email
+    description: Email address for the admin user (optional)
+  log_level:
+    name: Log Level
+    description: Logging verbosity level
+  enable_metrics:
+    name: Enable Metrics
+    description: Enable Prometheus metrics endpoint
+  trusted_key_servers:
+    name: Trusted Key Servers
+    description: List of trusted key servers for federation
+  turn_uri:
+    name: TURN Server URI
+    description: TURN server URI for VoIP calls (optional)
+  turn_username:
+    name: TURN Username
+    description: TURN server username (optional)
+  turn_password:
+    name: TURN Password
+    description: TURN server password or shared secret (optional)
+  enable_media_repo:
+    name: Enable Media Repository
+    description: Enable media repository for file uploads
+  max_upload_size:
+    name: Maximum Upload Size
+    description: Maximum file upload size (e.g., 50M, 100M)
+  federation_enabled:
+    name: Enable Federation
+    description: Enable federation with other Matrix servers
+  presence_enabled:
+    name: Enable Presence
+    description: Enable presence information (online/offline status)
+  public_baseurl:
+    name: Public Base URL
+    description: Public URL for the homeserver (optional, for reverse proxy setups)
+  serve_server_wellknown:
+    name: Serve Server Well-Known
+    description: Serve .well-known/matrix/server for federation discovery
+  email_smtp_host:
+    name: SMTP Host
+    description: SMTP server hostname for email notifications (optional)
+  email_smtp_port:
+    name: SMTP Port
+    description: SMTP server port (default 587)
+  email_smtp_user:
+    name: SMTP Username
+    description: SMTP username for authentication (optional)
+  email_smtp_pass:
+    name: SMTP Password
+    description: SMTP password for authentication (optional)
+  email_smtp_require_transport_security:
+    name: SMTP Require TLS
+    description: Require TLS encryption for SMTP connections
+  email_from:
+    name: Email From Address
+    description: From address for email notifications (optional)
+  email_subject_prefix:
+    name: Email Subject Prefix
+    description: Prefix for email notification subjects

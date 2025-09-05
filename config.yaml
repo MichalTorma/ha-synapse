@@ -1,0 +1,95 @@
+name: "Synapse Matrix Server"
+description: "Matrix homeserver written in Python/Twisted + Rust"
+version: "0.1.0"
+slug: "synapse"
+arch:
+  - aarch64
+  - amd64
+  - armhf
+  - armv7
+  - i386
+init: false
+startup: application
+boot: manual
+hassio_api: true
+hassio_role: default
+host_network: false
+privileged: []
+ports:
+  8008/tcp: 8008
+  8448/tcp: 8448
+ports_description:
+  8008/tcp: "Matrix Client-Server API"
+  8448/tcp: "Matrix Server-Server API (Federation)"
+map:
+  - config:rw
+  - ssl:ro
+  - media:rw
+options:
+  server_name: "homeassistant.local"
+  database_host: "core-postgres"
+  database_port: 5432
+  database_name: "synapse"
+  database_user: "synapse"
+  database_password: ""
+  registration_enabled: false
+  registration_requires_token: true
+  enable_registration_without_verification: false
+  report_stats: false
+  admin_username: "admin"
+  admin_password: ""
+  admin_email: ""
+  log_level: "INFO"
+  enable_metrics: false
+  trusted_key_servers:
+    - "matrix.org"
+  turn_uri: ""
+  turn_username: ""
+  turn_password: ""
+  enable_media_repo: true
+  max_upload_size: "50M"
+  federation_enabled: true
+  presence_enabled: true
+  public_baseurl: ""
+  serve_server_wellknown: false
+  email_smtp_host: ""
+  email_smtp_port: 587
+  email_smtp_user: ""
+  email_smtp_pass: ""
+  email_smtp_require_transport_security: true
+  email_from: ""
+  email_subject_prefix: "[Synapse] "
+schema:
+  server_name: "str"
+  database_host: "str"
+  database_port: "port"
+  database_name: "str"
+  database_user: "str"
+  database_password: "password"
+  registration_enabled: "bool"
+  registration_requires_token: "bool"
+  enable_registration_without_verification: "bool"
+  report_stats: "bool"
+  admin_username: "str"
+  admin_password: "password"
+  admin_email: "email?"
+  log_level: "list(DEBUG|INFO|WARNING|ERROR|CRITICAL)"
+  enable_metrics: "bool"
+  trusted_key_servers: ["str"]
+  turn_uri: "str?"
+  turn_username: "str?"
+  turn_password: "password?"
+  enable_media_repo: "bool"
+  max_upload_size: "str"
+  federation_enabled: "bool"
+  presence_enabled: "bool"
+  public_baseurl: "url?"
+  serve_server_wellknown: "bool"
+  email_smtp_host: "str?"
+  email_smtp_port: "port?"
+  email_smtp_user: "str?"
+  email_smtp_pass: "password?"
+  email_smtp_require_transport_security: "bool"
+  email_from: "email?"
+  email_subject_prefix: "str"
+webui: "http://[HOST]:[PORT:8008]"

@@ -1,0 +1,14 @@
+build_from:
+  aarch64: ghcr.io/home-assistant/aarch64-base-python:3.11
+  amd64: ghcr.io/home-assistant/amd64-base-python:3.11
+  armhf: ghcr.io/home-assistant/armhf-base-python:3.11
+  armv7: ghcr.io/home-assistant/armv7-base-python:3.11
+  i386: ghcr.io/home-assistant/i386-base-python:3.11
+labels:
+  org.opencontainers.image.title: "Home Assistant Add-on: Synapse Matrix Server"
+  org.opencontainers.image.description: "Matrix homeserver written in Python/Twisted + Rust"
+  org.opencontainers.image.source: "https://github.com/MichalTorma/ha-synapse"
+  org.opencontainers.image.licenses: "AGPL-3.0"
+  org.opencontainers.image.documentation: "https://github.com/MichalTorma/ha-synapse/blob/main/README.md"
+args:
+  SYNAPSE_VERSION: "1.137.0"
