@@ -1,0 +1,16 @@
+#!/usr/bin/with-contenv bashio
+# ==============================================================================
+# Start the Synapse Matrix Server
+# ==============================================================================
+
+# Load configuration values
+SERVER_NAME=$(bashio::config 'server_name')
+
+bashio::log.info "Starting Synapse Matrix Server"
+bashio::log.info "Server name: ${SERVER_NAME}"
+
+# Export configuration for the scripts
+export SERVER_NAME
+
+# Start Synapse server
+exec python3 -m synapse.app.homeserver --config-path=/config/synapse/homeserver.yaml
