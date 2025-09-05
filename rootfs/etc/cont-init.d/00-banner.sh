@@ -1,27 +1,31 @@
 #!/usr/bin/with-contenv bashio
 # ==============================================================================
 # Home Assistant Community Add-on: Synapse Matrix Server
-# Displays a banner on startup
+# Displays a simple add-on banner on startup
 # ==============================================================================
 
-bashio::log.info ""
-bashio::log.info "-----------------------------------------------------------"
-bashio::log.info " Add-on: Synapse Matrix Server"
-bashio::log.info " Matrix homeserver written in Python/Twisted + Rust"
-bashio::log.info "-----------------------------------------------------------"
-bashio::log.info " Add-on version: $(bashio::addon.version)"
+if bashio::supervisor.ping; then
+    bashio::log.blue \
+        '-----------------------------------------------------------'
+    bashio::log.blue " Add-on: $(bashio::addon.name)"
+    bashio::log.blue " $(bashio::addon.description)"
+    bashio::log.blue \
+        '-----------------------------------------------------------'
 
-# Check if virtual environment exists and Synapse is accessible
-if [[ -f "/opt/venv/bin/python" ]]; then
-    bashio::log.info " Virtual environment: OK"
-    if /opt/venv/bin/python -c 'import synapse' 2>/dev/null; then
-        bashio::log.info " Synapse version: v$(/opt/venv/bin/python -c 'import synapse; print(synapse.__version__)')"
+    bashio::log.blue " Add-on version: $(bashio::addon.version)"
+    if bashio::var.true "$(bashio::addon.update_available)"; then
+        bashio::log.magenta ' There is an update available for this add-on!'
+        bashio::log.magenta \
+            " Latest add-on version: $(bashio::addon.version_latest)"
+        bashio::log.magenta ' Please consider upgrading as soon as possible.'
     else
-        bashio::log.warning " Synapse installation: FAILED to import"
+        bashio::log.green ' You are running the latest version of this add-on.'
     fi
-else
-    bashio::log.error " Virtual environment: NOT FOUND"
-fi
 
-bashio::log.info "-----------------------------------------------------------"
-bashio::log.info ""
+    bashio::log.blue \
+        '-----------------------------------------------------------'
+    bashio::log.blue " Be sure to check the add-on documentation:"
+    bashio::log.blue " $(bashio::addon.repository)"
+    bashio::log.blue \
+        '-----------------------------------------------------------'
+fi
