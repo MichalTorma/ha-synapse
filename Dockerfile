@@ -1,27 +1,38 @@
-# Minimal test to isolate /init permission issue
+# https://developers.home-assistant.io/docs/add-ons/configuration#add-on-dockerfile
 ARG BUILD_FROM
 FROM $BUILD_FROM
 
-# Install only python3
-RUN apk add --no-cache python3
+# Install required packages
+RUN apk add --no-cache \
+    python3 \
+    py3-pip \
+    postgresql-client \
+    curl \
+    build-base \
+    python3-dev \
+    libffi-dev \
+    openssl-dev \
+    libpq-dev
 
-# Create minimal rootfs structure
-RUN mkdir -p /etc/cont-init.d && \
-    mkdir -p /etc/services.d/test
+# Install Synapse in virtual environment
+RUN python3 -m venv /opt/venv && \
+    /opt/venv/bin/pip install --upgrade pip && \
+    /opt/venv/bin/pip install matrix-synapse[postgres] psycopg2-binary
 
-# Create minimal banner script
-RUN echo '#!/usr/bin/with-contenv bashio' > /etc/cont-init.d/00-test.sh && \
-    echo 'bashio::log.info "Minimal test banner"' >> /etc/cont-init.d/00-test.sh && \
-    chmod +x /etc/cont-init.d/00-test.sh
+# Set PATH to use virtual environment
+ENV PATH="/opt/venv/bin:$PATH"
 
-# Create minimal service
-RUN echo '#!/usr/bin/with-contenv bashio' > /etc/services.d/test/run && \
-    echo 'bashio::log.info "Test service starting"' >> /etc/services.d/test/run && \
-    echo 'exec sleep infinity' >> /etc/services.d/test/run && \
-    chmod +x /etc/services.d/test/run
+# Copy root filesystem
+COPY rootfs /
 
-# Create service type
-RUN echo 'longrun' > /etc/services.d/test/type
+# Ensure service scripts are executable
+RUN chmod +x /etc/cont-init.d/* && \
+    chmod +x /etc/services.d/synapse/run && \
+    chmod +x /etc/services.d/synapse/finish
 
-# Expose port
-EXPOSE 8008
+# Expose ports
+EXPOSE 8008 8448
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=120s --retries=3 \
+    CMD curl -f http://localhost:8008/health || exit 1
