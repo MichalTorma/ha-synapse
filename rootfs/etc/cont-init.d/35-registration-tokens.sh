@@ -10,6 +10,11 @@ ADMIN_USERNAME=$(bashio::config 'admin_username')
 ADMIN_PASSWORD=$(bashio::config 'admin_password')
 SERVER_NAME=$(bashio::config 'server_name')
 
+# Debug logging
+bashio::log.info "Debug: Found ${#tokens[@]} registration tokens"
+bashio::log.info "Debug: Admin username: ${ADMIN_USERNAME}"
+bashio::log.info "Debug: Admin password configured: $(bashio::var.has_value "${ADMIN_PASSWORD}" && echo "yes" || echo "no")"
+
 if [[ ${#tokens[@]} -gt 0 ]] && bashio::var.has_value "${ADMIN_USERNAME}" && bashio::var.has_value "${ADMIN_PASSWORD}"; then
     bashio::log.info "Creating registration tokens..."
     
