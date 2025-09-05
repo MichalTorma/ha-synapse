@@ -1,6 +1,6 @@
 #include <tunables/global>
 
-profile synapse flags=(attach_disconnected,mediate_deleted) {
+profile synapse-server flags=(attach_disconnected,mediate_deleted) {
   #include <abstractions/base>
   #include <abstractions/python>
   #include <abstractions/ssl_certs>
