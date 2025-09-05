@@ -1,73 +1,42 @@
 ARG BUILD_FROM
 FROM $BUILD_FROM
 
-# Set shell
-SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+# Install basic dependencies
+RUN apk add --no-cache \
+    python3 \
+    py3-pip \
+    postgresql-client \
+    curl \
+    build-base \
+    python3-dev \
+    libffi-dev \
+    openssl-dev \
+    libpq-dev
 
-# Build arguments
-ARG BUILD_ARCH
-ARG SYNAPSE_VERSION=1.137.0
+# Create synapse user  
+RUN addgroup -g 991 synapse && \
+    adduser -D -s /bin/sh -u 991 -G synapse synapse
 
-# Install Python and system dependencies
-RUN \
-    apk add --no-cache \
-        python3 \
-        python3-dev \
-        py3-pip \
-        ca-certificates \
-        tzdata \
-        postgresql-client \
-        jq \
-        curl \
-        libpq \
-        xmlsec \
-        git \
-        build-base \
-        libffi-dev \
-        libjpeg-turbo-dev \
-        libwebp-dev \
-        zlib-dev \
-        openssl-dev \
-        rust \
-        cargo \
-        pkgconfig \
-        libc-dev \
-        libxslt-dev \
-        yaml-dev \
-        musl-dev \
-        linux-headers
+# Create directories
+RUN mkdir -p /config/synapse && \
+    mkdir -p /media/synapse && \
+    chown -R synapse:synapse /config/synapse && \
+    chown -R synapse:synapse /media/synapse
 
-# Create synapse user and directories
-RUN \
-    addgroup -g 991 synapse \
-    && adduser -D -s /bin/sh -u 991 -G synapse synapse \
-    && mkdir -p /data/media_store \
-    && mkdir -p /data/uploads \
-    && mkdir -p /data/logs \
-    && mkdir -p /data/config \
-    && mkdir -p /data/keys
+# Install Synapse in virtual environment
+RUN python3 -m venv /opt/venv && \
+    /opt/venv/bin/pip install --upgrade pip && \
+    /opt/venv/bin/pip install matrix-synapse[postgres] psycopg2-binary
 
-# Create virtual environment and install Python dependencies
-RUN \
-    python3 -m venv /opt/venv \
-    && /opt/venv/bin/pip install --upgrade pip setuptools wheel \
-    && /opt/venv/bin/pip install --no-cache-dir \
-        "matrix-synapse[postgres,resources.consent,saml2,oidc,url_preview]==${SYNAPSE_VERSION}" \
-        psycopg2-binary \
-        pyyaml \
-        requests \
-    && /opt/venv/bin/python -m synapse.app.homeserver --help > /dev/null
-
-# Set initial permissions
-RUN \
-    chown -R synapse:synapse /data \
-    && chmod -R 750 /data
-
-# Update PATH to use virtual environment
+# Set PATH
 ENV PATH="/opt/venv/bin:$PATH"
 
 # Copy rootfs
 COPY rootfs /
+
+# Set permissions
+RUN chmod +x /etc/cont-init.d/* && \
+    chmod +x /etc/services.d/synapse/*
 
 # Build arguments for labels
 ARG BUILD_DATE
