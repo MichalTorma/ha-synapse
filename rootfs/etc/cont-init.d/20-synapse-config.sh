@@ -51,10 +51,13 @@ EMAIL_SUBJECT_PREFIX=$(bashio::config 'email_subject_prefix')
 generate_signing_key() {
     if [[ ! -f "${SIGNING_KEY_FILE}" ]]; then
         bashio::log.info "Generating Synapse signing key..."
-        /opt/venv/bin/python -m synapse.app.homeserver \
+        if ! /opt/venv/bin/python -m synapse.app.homeserver \
             --server-name="${SERVER_NAME}" \
             --config-path="${CONFIG_FILE}" \
-            --generate-keys
+            --generate-keys; then
+            bashio::log.error "Failed to generate signing key"
+            exit 1
+        fi
     fi
 }
 
