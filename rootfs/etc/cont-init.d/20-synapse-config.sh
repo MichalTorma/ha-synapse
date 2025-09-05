@@ -289,8 +289,8 @@ EOF
 # Generate signing key now that config file exists
 generate_signing_key
 
-# Set permissions
-chown -R synapse:synapse /config/synapse
+# Set permissions (use root since synapse user doesn't exist in HA base image)
+chown -R root:root /config/synapse
 chmod 600 "${CONFIG_FILE}"
 chmod 600 "${SIGNING_KEY_FILE}" 2>/dev/null || true
 
