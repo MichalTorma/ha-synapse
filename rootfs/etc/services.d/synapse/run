@@ -1,41 +1,16 @@
 #!/usr/bin/with-contenv bashio
 # ==============================================================================
-# Home Assistant Community Add-on: Synapse Matrix Server
-# Runs the Synapse server
+# Start the Synapse Matrix Server
 # ==============================================================================
 
-declare config_path
+# Load configuration values
+SERVER_NAME=$(bashio::config 'server_name')
 
-bashio::log.info "Starting Synapse Matrix server..."
+bashio::log.info "Starting Synapse Matrix Server"
+bashio::log.info "Server name: ${SERVER_NAME}"
 
-# Ensure proper ownership of synapse directories
-chown -R synapse:synapse /config/synapse
-chown -R synapse:synapse /media/synapse
+# Export configuration for the scripts
+export SERVER_NAME
 
-config_path="/config/synapse/homeserver.yaml"
-
-# Validate configuration file exists
-if [[ ! -f "${config_path}" ]]; then
-    bashio::exit.nok "Configuration file not found: ${config_path}"
-fi
-
-# Run database migrations if needed
-bashio::log.info "Running database migrations..."
-cd /config/synapse || bashio::exit.nok "Could not change to Synapse config directory"
-
-# Run as synapse user
-exec s6-setuidgid synapse python3 -m synapse.app.homeserver \
-    --config-path="${config_path}" \
-    --config-directory="/config/synapse" &
-
-# Store PID for later use
-SYNAPSE_PID=$!
-
-# Run admin user creation script in background if it exists
-if [[ -f "/tmp/create_admin_user.sh" ]]; then
-    bashio::log.info "Running admin user creation script in background..."
-    /tmp/create_admin_user.sh &
-fi
-
-# Wait for Synapse process
-wait $SYNAPSE_PID
+# Start Synapse server
+exec python3 -m synapse.app.homeserver --config-path=/config/synapse/homeserver.yaml

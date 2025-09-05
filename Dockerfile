@@ -27,7 +27,8 @@ COPY rootfs /
 
 # Ensure service scripts are executable
 RUN chmod +x /etc/cont-init.d/* && \
-    chmod +x /etc/services.d/synapse/*
+    chmod +x /etc/services.d/synapse/run && \
+    chmod +x /etc/services.d/synapse/finish
 
 # Build arguments for labels
 ARG BUILD_DATE
